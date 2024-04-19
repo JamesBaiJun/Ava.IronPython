@@ -1,0 +1,62 @@
+<UserControl x:Class="Ava.IronPython.Views.MainView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:AvaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Ava.IronPython.ViewModels"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             x:DataType="vm:MainViewModel"
+             mc:Ignorable="d">
+    <Design.DataContext>
+        <vm:MainViewModel />
+    </Design.DataContext>
+
+    <Grid Margin="4" RowDefinitions="Auto,3*">
+        <DockPanel Margin="4" LastChildFill="False">
+            <Menu>
+                <MenuItem Command="{Binding PlayPy}">
+                    <MenuItem.Header>
+                        <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorSuccess}" Kind="Play" />
+                    </MenuItem.Header>
+                </MenuItem>
+
+                <MenuItem Click="ButtonTheme_Click">
+                    <MenuItem.Header>
+                        <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorPrimary}" Kind="Theme" />
+                    </MenuItem.Header>
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,200">
+            <Border Padding="0" Theme="{DynamicResource CardBorder}">
+                <AvaloniaEdit:TextEditor x:Name="Editor"
+                                         Document="{Binding PyScript}"
+                                         FontFamily="Cascadia Code,Consolas,Menlo,Monospace"
+                                         ShowLineNumbers="True" />
+
+            </Border>
+
+            <GridSplitter Width="4"
+                          HorizontalAlignment="Right"
+                          VerticalAlignment="Stretch"
+                          Background="Transparent" />
+            <Border Grid.Column="1" Padding="4" Theme="{DynamicResource CardBorder}">
+                <ListBox Background="Transparent" ItemsSource="{Binding VariableList}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Spacing="2">
+                                <TextBlock FontWeight="Bold" Text="{Binding Name}" />
+                                <TextBlock Text="{Binding Value}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
+        </Grid>
+
+    </Grid>
+</UserControl>

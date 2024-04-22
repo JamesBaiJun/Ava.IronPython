@@ -8,20 +8,29 @@ using Microsoft.Scripting.Hosting;
 using IronPython.Runtime;
 using Ava.IronPython.Models;
 using Avalonia;
+using Microsoft.Scripting.Runtime;
 namespace Ava.IronPython.Common
 {
     internal class ScriptExecute
     {
         private static ScriptEngine eng;
         private static ScriptScope scope;
-        public static List<PyVariable> Execute(string script)
+        public static List<PyVariable> Execute(string script, ref ScriptScope? scp)
         {
             eng ??= Python.CreateEngine();
-            scope ??= eng.CreateScope();
+            if (scp == null)
+            {
+                scope = eng.CreateScope();
+                scp = scope;
+            }
+            else
+            {
+                scp = scope;
+            }
 
             // 设置引用库
             var paths = eng.GetSearchPaths();
-            if(!paths.Contains(@"C:\Program Files\IronPython 3.4\Lib"))
+            if (!paths.Contains(@"C:\Program Files\IronPython 3.4\Lib"))
             {
                 paths.Add(@"C:\Program Files\IronPython 3.4\Lib");
 
@@ -71,23 +80,6 @@ namespace Ava.IronPython.Common
             return result;
         }
 
-        public static List<string> GetVariableValues(IEnumerable<string> variables)
-        {
-            List<string> result = new List<string>();
-            foreach (var item in variables)
-            {
-                var val = scope.GetVariable(item);
-                if (val is PythonModule)
-                {
 
-                }
-                else
-                {
-                    result.Add(val.ToString());
-                }
-            }
-
-            return result;
-        }
     }
 }

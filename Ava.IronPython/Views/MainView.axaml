@@ -3,6 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:AvaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
+             xmlns:ic="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
              xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Ava.IronPython.ViewModels"
@@ -10,6 +12,12 @@
              d:DesignWidth="800"
              x:DataType="vm:MainViewModel"
              mc:Ignorable="d">
+    <ic:Interaction.Behaviors>
+        <ia:EventTriggerBehavior EventName="KeyDown">
+            <ia:InvokeCommandAction Command="{Binding ViewKeyDown}" PassEventArgsToCommand="True" />
+        </ia:EventTriggerBehavior>
+    </ic:Interaction.Behaviors>
+
     <Design.DataContext>
         <vm:MainViewModel />
     </Design.DataContext>
@@ -17,27 +25,100 @@
     <Grid Margin="4" RowDefinitions="Auto,3*">
         <DockPanel Margin="4" LastChildFill="False">
             <Menu>
-                <MenuItem Command="{Binding PlayPy}">
+                <MenuItem Command="{Binding PlayPy}" IsEnabled="{Binding !IsDebuging}" ToolTip.Tip="运行代码(F5)">
                     <MenuItem.Header>
                         <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorSuccess}" Kind="Play" />
                     </MenuItem.Header>
                 </MenuItem>
 
-                <MenuItem Click="ButtonTheme_Click">
+                <MenuItem Command="{Binding DebugPy}" ToolTip.Tip="调试代码(Ctrl+F5)">
+                    <MenuItem.Header>
+                        <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorWarning}" Kind="Bug" />
+                    </MenuItem.Header>
+                </MenuItem>
+
+                <MenuItem Command="{Binding ContinueDebug}" IsEnabled="{Binding IsDebuging}" ToolTip.Tip="继续(F5)">
+                    <MenuItem.Header>
+                        <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorWarning}" Kind="ArrowRight" />
+                    </MenuItem.Header>
+                </MenuItem>
+
+                <MenuItem Command="{Binding StepOver}" IsEnabled="{Binding IsDebuging}" ToolTip.Tip="Step Over(F10)">
+                    <MenuItem.Header>
+                        <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorWarning}" Kind="DebugStepOver" />
+                    </MenuItem.Header>
+                </MenuItem>
+
+                <MenuItem Click="ButtonTheme_Click" ToolTip.Tip="切换代码主题">
                     <MenuItem.Header>
                         <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorPrimary}" Kind="Theme" />
                     </MenuItem.Header>
                 </MenuItem>
             </Menu>
+
+            <materialIcons:MaterialIcon DockPanel.Dock="Right"
+                                        Foreground="{DynamicResource SemiColorWarning}"
+                                        IsVisible="{Binding IsDebuging}"
+                                        Kind="Bug" />
         </DockPanel>
 
         <Grid Grid.Row="1" ColumnDefinitions="*,200">
             <Border Padding="0" Theme="{DynamicResource CardBorder}">
-                <AvaloniaEdit:TextEditor x:Name="Editor"
-                                         Document="{Binding PyScript}"
-                                         FontFamily="Cascadia Code,Consolas,Menlo,Monospace"
-                                         ShowLineNumbers="True" />
+                <Grid ColumnDefinitions="20,*">
+                    <ScrollViewer x:Name="BreakScrollViewer" HorizontalAlignment="Left" VerticalScrollBarVisibility="Hidden">
+                        <ItemsControl x:Name="BreakItems" VerticalAlignment="Top" ItemsSource="{Binding BreakPoints}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Width="21" Height="21">
+                                        <Grid.Resources>
+                                            <ControlTheme x:Key="{x:Type Button}" TargetType="Button">
+                                                <Setter Property="Background" Value="Transparent" />
+                                                <Setter Property="Template">
+                                                    <ControlTemplate>
+                                                        <Panel Background="Transparent">
+                                                            <Ellipse Fill="{TemplateBinding Background}" />
+                                                            <ContentPresenter x:Name="PART_ContentPresenter" Margin="{TemplateBinding Padding}" Content="{TemplateBinding Content}" />
+                                                        </Panel>
+                                                    </ControlTemplate>
+                                                </Setter>
+                                                <Style Selector="^:pointerover">
+                                                    <Setter Property="Background" Value="#8BD9D9D9" />
+                                                </Style>
+                                            </ControlTheme>
+                                        </Grid.Resources>
+                                        <Button Width="16"
+                                                Height="16"
+                                                Margin="2,0,0,0"
+                                                Padding="0"
+                                                VerticalAlignment="Center"
+                                                Command="{Binding SwitchPoint}">
+                                            <Ellipse Width="16"
+                                                     Height="16"
+                                                     Fill="#D61717"
+                                                     IsVisible="{Binding Enable}"
+                                                     Stroke="WhiteSmoke"
+                                                     StrokeThickness="1" />
+                                        </Button>
+                                        <materialIcons:MaterialIcon Margin="2,0,0,0"
+                                                                    HorizontalAlignment="Center"
+                                                                    VerticalAlignment="Center"
+                                                                    Foreground="#E1E105"
+                                                                    IsVisible="{Binding IsHit}"
+                                                                    Kind="ArrowRightBold" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
 
+                    <AvaloniaEdit:TextEditor x:Name="Editor"
+                                             Grid.Column="1"
+                                             Document="{Binding PyScript}"
+                                             FontFamily="Cascadia Code,Consolas,Menlo,Monospace,Microsoft YaHei"
+                                             FontSize="15.6"
+                                             KeyDown="TextEditor_KeyDown"
+                                             ShowLineNumbers="True" />
+                </Grid>
             </Border>
 
             <GridSplitter Width="4"

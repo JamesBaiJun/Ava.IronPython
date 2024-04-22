@@ -13,8 +13,8 @@ namespace Ava.IronPython.Common
 {
     internal class ScriptExecute
     {
-        private static ScriptEngine eng;
-        private static ScriptScope scope;
+        private static ScriptEngine? eng;
+        private static ScriptScope? scope;
         public static List<PyVariable> Execute(string script, ref ScriptScope? scp)
         {
             eng ??= Python.CreateEngine();
@@ -43,7 +43,12 @@ namespace Ava.IronPython.Common
             eng.SetSearchPaths(paths);
 
             eng.Execute(script, scope);
-            var variables = scope.GetVariableNames().Where(x => !x.Contains("__")).ToList();
+            if (scope == null)
+            {
+                return [];
+            }
+
+            List<string> variables = scope.GetVariableNames().Where(x => !x.Contains("__")).ToList();
 
             List<PyVariable> result = new List<PyVariable>();
             for (int i = 0; i < variables.Count; i++)

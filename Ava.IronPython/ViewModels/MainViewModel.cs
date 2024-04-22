@@ -41,7 +41,7 @@ public partial class MainViewModel : ViewModelBase
         try
         {
             ScriptScope? scope = null;
-            List<PyVariable> variables = ScriptExecute.Execute(pyScript.Text, ref scope);
+            List<PyVariable> variables = ScriptExecute.Execute(PyScript.Text, ref scope);
             UpdateVariables(variables);
             WeakReferenceMessenger.Default.Send(new Tuple<int, string>(1, "执行完成！"));
         }
@@ -64,7 +64,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    string[] scriptArray;
+    string[]? scriptArray;
     int currentRow = 0;
     ScriptScope? currentScope;
     public void DebugPy()
@@ -112,6 +112,10 @@ public partial class MainViewModel : ViewModelBase
     /// </summary>
     public void ContinueDebug()
     {
+        if (scriptArray == null)
+        {
+            return;
+        }
         for (int i = currentRow; i < scriptArray.Length; i++)
         {
             foreach (var item in BreakPoints)
@@ -161,6 +165,10 @@ public partial class MainViewModel : ViewModelBase
 
         try
         {
+            if (scriptArray == null)
+            {
+                return;
+            }
             string line = scriptArray[currentRow];
             List<PyVariable> variables = ScriptExecute.Execute(line, ref currentScope);
             UpdateVariables(variables);

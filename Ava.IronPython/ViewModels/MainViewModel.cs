@@ -144,7 +144,6 @@ public partial class MainViewModel : ViewModelBase
                     IsDebuging = false;
                     return;
                 }
-
             }
             currentRow = i;
         }

@@ -1,16 +1,22 @@
 ﻿using Ava.IronPython.Common;
 using Ava.IronPython.Models;
 using Avalonia.Controls.Notifications;
+using Avalonia.Controls.Shapes;
 using Avalonia.Input;
+using Avalonia.Media.TextFormatting.Unicode;
 using AvaloniaEdit.Document;
 using AvaloniaEdit.Editing;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Scripting.Hosting;
+using Mono.Unix.Native;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using static IronPython.Modules._ast;
 using static IronPython.Modules.PythonIterTools;
 
 namespace Ava.IronPython.ViewModels;
@@ -23,6 +29,7 @@ public partial class MainViewModel : ViewModelBase
         pyScript.TextLengthChanged += PyScript_TextLengthChanged;
         PyScript_TextLengthChanged(null, null);
         WeakReferenceMessenger.Default.Register<TextArea>(this, OnBreakPointsKeyDown);
+        InitProjectFile();
     }
 
     [ObservableProperty]
@@ -33,6 +40,12 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     ObservableCollection<BreakPoint> breakPoints = new ObservableCollection<BreakPoint>();
+
+    [ObservableProperty]
+    ObservableCollection<ProjectItem> projectItems = new ObservableCollection<ProjectItem>();
+
+    [ObservableProperty]
+    ProjectItem? selectedProjectItem;
 
     [ObservableProperty]
     bool isDebuging;
@@ -246,5 +259,69 @@ public partial class MainViewModel : ViewModelBase
         {
             BreakPoints[currentRow - 1].Enable = !BreakPoints[currentRow - 1].Enable;
         }
+    }
+
+    string workSpace = ".\\WorkSpace";
+    private void InitProjectFile()
+    {
+        DirectoryInfo root = new DirectoryInfo(workSpace);
+        foreach (DirectoryInfo dir in root.GetDirectories())
+        {
+            ProjectItem projectItem = new(dir.Name, dir.FullName) { IsFolder = true };
+            ProjectItems.Add(projectItem);
+            GetDirectory(dir.FullName, projectItem);
+        }
+        foreach (var file in root.GetFiles())
+        {
+            ProjectItem projectItem = new ProjectItem(file.Name, file.FullName);
+            ProjectItems.Add(projectItem);
+        }
+    }
+
+    public void GetDirectory(string path, ProjectItem parent)
+    {
+        DirectoryInfo root = new DirectoryInfo(path);
+        foreach (DirectoryInfo dir in root.GetDirectories())
+        {
+            ProjectItem projectItem = new ProjectItem(dir.Name, dir.FullName);
+            parent.Children.Add(projectItem);
+            GetDirectory(dir.FullName, projectItem);
+        }
+        foreach (var file in root.GetFiles())
+        {
+            ProjectItem projectItem = new ProjectItem(file.Name, file.FullName);
+            parent.Children.Add(projectItem);
+        }
+    }
+
+    string currentFilePath = string.Empty;
+    /// <summary>
+    /// 双击文件打开
+    /// </summary>
+    /// <param name="e"></param>
+    public void TreeDoubleTapped(TappedEventArgs? e)
+    {
+        if (SelectedProjectItem == null)
+        {
+            return;
+        }
+
+        if (!SelectedProjectItem.IsFolder)
+        {
+            // 读取文件
+            var str = File.ReadAllText(SelectedProjectItem.FullName);
+            currentFilePath = SelectedProjectItem.FullName;
+            PyScript.Text = str;
+        }
+    }
+
+    public void SaveFile()
+    {
+        if (currentFilePath == string.Empty)
+        {
+            return;
+        }
+
+        File.WriteAllText(currentFilePath, PyScript.Text);
     }
 }

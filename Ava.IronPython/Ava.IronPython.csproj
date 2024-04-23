@@ -26,6 +26,7 @@
     <PackageReference Include="IronPython" Version="3.4.1" />
     <PackageReference Include="Material.Icons.Avalonia" Version="2.1.9" />
     <PackageReference Include="Semi.Avalonia" Version="11.1.0-beta1.1" />
+    <PackageReference Include="Semi.Avalonia.TreeDataGrid" Version="11.0.1" />
   </ItemGroup>
 
   <ItemGroup>

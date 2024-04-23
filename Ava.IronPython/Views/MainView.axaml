@@ -30,16 +30,18 @@
                         <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorSuccess}" Kind="Play" />
                     </MenuItem.Header>
                 </MenuItem>
+            </Menu>
 
+            <Menu Margin="8,0,0,0">
                 <MenuItem Command="{Binding DebugPy}" ToolTip.Tip="调试代码(Ctrl+F5)">
                     <MenuItem.Header>
-                        <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorWarning}" Kind="Bug" />
+                        <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorDanger}" Kind="Bug" />
                     </MenuItem.Header>
                 </MenuItem>
 
                 <MenuItem Command="{Binding ContinueDebug}" IsEnabled="{Binding IsDebuging}" ToolTip.Tip="继续(F5)">
                     <MenuItem.Header>
-                        <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorWarning}" Kind="ArrowRight" />
+                        <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorInformation}" Kind="ArrowRight" />
                     </MenuItem.Header>
                 </MenuItem>
 
@@ -48,14 +50,24 @@
                         <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorWarning}" Kind="DebugStepOver" />
                     </MenuItem.Header>
                 </MenuItem>
+            </Menu>
 
+            <Menu Margin="8,0,0,0">
+                <MenuItem Command="{Binding SaveFile}" ToolTip.Tip="保存文件">
+                    <MenuItem.Header>
+                        <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorPrimary}" Kind="Disc" />
+                    </MenuItem.Header>
+                </MenuItem>
+            </Menu>
+
+
+            <Menu Margin="8,0,0,0">
                 <MenuItem Click="ButtonTheme_Click" ToolTip.Tip="切换代码主题">
                     <MenuItem.Header>
                         <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorPrimary}" Kind="Theme" />
                     </MenuItem.Header>
                 </MenuItem>
             </Menu>
-
             <materialIcons:MaterialIcon DockPanel.Dock="Right"
                                         Foreground="{DynamicResource SemiColorWarning}"
                                         IsVisible="{Binding IsDebuging}"
@@ -113,10 +125,10 @@
 
                     <AvaloniaEdit:TextEditor x:Name="Editor"
                                              Grid.Column="1"
-											 IsReadOnly="{Binding IsDebuging}"
                                              Document="{Binding PyScript}"
                                              FontFamily="Cascadia Code,Consolas,Menlo,Monospace,Microsoft YaHei"
                                              FontSize="15.6"
+                                             IsReadOnly="{Binding IsDebuging}"
                                              KeyDown="TextEditor_KeyDown"
                                              ShowLineNumbers="True" />
                 </Grid>
@@ -126,19 +138,47 @@
                           HorizontalAlignment="Right"
                           VerticalAlignment="Stretch"
                           Background="Transparent" />
-            <Border Grid.Column="1" Padding="4" Theme="{DynamicResource CardBorder}">
-                <ListBox Background="Transparent" ItemsSource="{Binding VariableList}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Spacing="2">
-                                <TextBlock Width="80" FontWeight="Bold" Text="{Binding Name}" />
-                                <TextBlock Text="{Binding Value}" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </Border>
-        </Grid>
+            <Grid Grid.Column="1" RowDefinitions="*,*">
+                <Border Padding="-4,4" Theme="{DynamicResource CardBorder}">
+                    <TreeView ItemsSource="{Binding ProjectItems}" SelectedItem="{Binding SelectedProjectItem}">
+                        <ic:Interaction.Behaviors>
+                            <ia:EventTriggerBehavior EventName="DoubleTapped">
+                                <ia:InvokeCommandAction Command="{Binding TreeDoubleTapped}" PassEventArgsToCommand="True" />
+                            </ia:EventTriggerBehavior>
+                        </ic:Interaction.Behaviors>
+                        <TreeView.ItemTemplate>
+                            <TreeDataTemplate ItemsSource="{Binding Children}">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialIcons:MaterialIcon Width="18"
+                                                                Height="18"
+                                                                Margin="4,0"
+                                                                IsVisible="{Binding IsFolder}"
+                                                                Kind="Folder" />
+                                    <materialIcons:MaterialIcon Width="18"
+                                                                Height="18"
+                                                                Margin="4,0"
+                                                                IsVisible="{Binding !IsFolder}"
+                                                                Kind="Code" />
+                                    <TextBlock Text="{Binding Name}" />
+                                </StackPanel>
+                            </TreeDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                </Border>
 
+                <Border Grid.Row="1" Padding="4" Theme="{DynamicResource CardBorder}">
+                    <ListBox Background="Transparent" ItemsSource="{Binding VariableList}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="2">
+                                    <TextBlock Width="80" FontWeight="Bold" Text="{Binding Name}" />
+                                    <TextBlock Text="{Binding Value}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
+            </Grid>
+        </Grid>
     </Grid>
 </UserControl>

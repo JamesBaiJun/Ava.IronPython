@@ -281,10 +281,11 @@ public partial class MainViewModel : ViewModelBase
 
     public void GetDirectory(string path, ProjectItem parent)
     {
+        parent.Children.Clear();
         DirectoryInfo root = new DirectoryInfo(path);
         foreach (DirectoryInfo dir in root.GetDirectories())
         {
-            ProjectItem projectItem = new ProjectItem(dir.Name, dir.FullName);
+            ProjectItem projectItem = new ProjectItem(dir.Name, dir.FullName) { IsFolder = true };
             parent.Children.Add(projectItem);
             GetDirectory(dir.FullName, projectItem);
         }
@@ -328,12 +329,22 @@ public partial class MainViewModel : ViewModelBase
 
     public async void AddFolder()
     {
-        string name = string.Empty;
-        var result = await InputDialog.ShowWindow();
+        (bool, string) result = await InputDialog.ShowWindow();
+        if (result.Item1)
+        {
+            Directory.CreateDirectory($"{SelectedProjectItem?.FullName}\\{result.Item2}");
+            GetDirectory(SelectedProjectItem.FullName, SelectedProjectItem);
+        }
     }
 
-    public void AddFile()
+    public async void AddFile()
     {
-
+        (bool, string) result = await InputDialog.ShowWindow();
+        if (result.Item1)
+        {
+            var stream = File.Create($"{SelectedProjectItem?.FullName}\\{result.Item2}.py");
+            stream.Close();
+            GetDirectory(SelectedProjectItem.FullName, SelectedProjectItem);
+        }
     }
 }

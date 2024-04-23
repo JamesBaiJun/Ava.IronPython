@@ -55,7 +55,7 @@
             <Menu Margin="8,0,0,0">
                 <MenuItem Command="{Binding SaveFile}" ToolTip.Tip="保存文件">
                     <MenuItem.Header>
-                        <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorPrimary}" Kind="Disc" />
+                        <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorSuccess}" Kind="Harddisk" />
                     </MenuItem.Header>
                 </MenuItem>
             </Menu>
@@ -148,15 +148,25 @@
                         </ic:Interaction.Behaviors>
                         <TreeView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding Children}">
-                                <StackPanel Orientation="Horizontal">
+                                <StackPanel Background="Transparent" Orientation="Horizontal">
+                                    <StackPanel.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Command="{Binding $parent[TreeView].((vm:MainViewModel)DataContext).AddFolder}" Header="新建文件夹" IsVisible="{Binding IsFolder}" />
+                                            <MenuItem Command="{Binding $parent[TreeView].((vm:MainViewModel)DataContext).AddFile}" Header="新建文件" IsVisible="{Binding IsFolder}" />
+                                            <MenuItem Header="删除" />
+                                        </ContextMenu>
+                                    </StackPanel.ContextMenu>
+
                                     <materialIcons:MaterialIcon Width="18"
                                                                 Height="18"
                                                                 Margin="4,0"
+                                                                Foreground="{DynamicResource SemiColorInformation}"
                                                                 IsVisible="{Binding IsFolder}"
                                                                 Kind="Folder" />
                                     <materialIcons:MaterialIcon Width="18"
                                                                 Height="18"
                                                                 Margin="4,0"
+                                                                Foreground="{DynamicResource SemiColorWarning}"
                                                                 IsVisible="{Binding !IsFolder}"
                                                                 Kind="Code" />
                                     <TextBlock Text="{Binding Name}" />

@@ -1,0 +1,33 @@
+<Window x:Class="Ava.IronPython.Views.InputDialog"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        Title="InputDialog"
+        Width="320"
+        Height="240"
+        d:DesignHeight="240"
+        d:DesignWidth="320"
+        mc:Ignorable="d">
+    <Grid>
+        <StackPanel Margin="20" VerticalAlignment="Center" Spacing="4">
+            <TextBlock Text="请输入名称：" />
+            <TextBox x:Name="InputBox" />
+            <StackPanel Margin="0,16,0,0" HorizontalAlignment="Center" Orientation="Horizontal">
+                <Button Name="BtnCancel"
+                        Width="80"
+                        HorizontalAlignment="Right"
+                        Classes="Tertiary"
+                        Click="BtnCancel_Click"
+                        Content="取消" />
+                <Button Name="BtnCofirm"
+                        Width="80"
+                        Margin="16,0,0,0"
+                        HorizontalAlignment="Right"
+                        Classes="Primary"
+                        Click="BtnCofirm_Click"
+                        Content="确认" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

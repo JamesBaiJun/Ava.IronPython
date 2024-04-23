@@ -1,5 +1,6 @@
 ﻿using Ava.IronPython.Common;
 using Ava.IronPython.Models;
+using Ava.IronPython.Views;
 using Avalonia.Controls.Notifications;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
@@ -323,5 +324,16 @@ public partial class MainViewModel : ViewModelBase
         }
 
         File.WriteAllText(currentFilePath, PyScript.Text);
+    }
+
+    public async void AddFolder()
+    {
+        string name = string.Empty;
+        var result = await InputDialog.ShowWindow();
+    }
+
+    public void AddFile()
+    {
+
     }
 }

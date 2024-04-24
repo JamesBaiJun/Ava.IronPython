@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static IronPython.Modules._ast;
 using static IronPython.Modules.PythonIterTools;
@@ -41,12 +42,6 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     ObservableCollection<BreakPoint> breakPoints = new ObservableCollection<BreakPoint>();
-
-    [ObservableProperty]
-    ObservableCollection<ProjectItem> projectItems = new ObservableCollection<ProjectItem>();
-
-    [ObservableProperty]
-    ProjectItem? selectedProjectItem;
 
     [ObservableProperty]
     bool isDebuging;
@@ -84,6 +79,7 @@ public partial class MainViewModel : ViewModelBase
     public void DebugPy()
     {
         scriptArray = PyScript.Text.Split('\n');
+        var segments = ExtractExecutableCodeSegments(PyScript.Text);
         currentScope = null;
         IsDebuging = true;
         for (int i = 0; i < scriptArray.Length; i++)
@@ -119,6 +115,29 @@ public partial class MainViewModel : ViewModelBase
                 }
             }
         }
+    }
+
+    /// <summary>
+    ///  整理代码行，处理不能单独运行的脚本
+    /// </summary>
+    static List<string> ExtractExecutableCodeSegments(string script)
+    {
+        List<string> executableCodeSegments = new List<string>();
+
+        // 使用正则表达式分割脚本为代码段
+        string pattern = @"(?<=\n\n|\n)(?=\S)";
+        string[] segments = Regex.Split(script, pattern, RegexOptions.Multiline);
+
+        foreach (string segment in segments)
+        {
+            string trimmedSegment = segment.Trim();
+            if (!string.IsNullOrEmpty(trimmedSegment))
+            {
+                executableCodeSegments.Add(trimmedSegment);
+            }
+        }
+
+        return executableCodeSegments;
     }
 
     /// <summary>
@@ -259,92 +278,6 @@ public partial class MainViewModel : ViewModelBase
         if (BreakPoints.Count >= currentRow - 1)
         {
             BreakPoints[currentRow - 1].Enable = !BreakPoints[currentRow - 1].Enable;
-        }
-    }
-
-    string workSpace = ".\\WorkSpace";
-    private void InitProjectFile()
-    {
-        DirectoryInfo root = new DirectoryInfo(workSpace);
-        foreach (DirectoryInfo dir in root.GetDirectories())
-        {
-            ProjectItem projectItem = new(dir.Name, dir.FullName) { IsFolder = true };
-            ProjectItems.Add(projectItem);
-            GetDirectory(dir.FullName, projectItem);
-        }
-        foreach (var file in root.GetFiles())
-        {
-            ProjectItem projectItem = new ProjectItem(file.Name, file.FullName);
-            ProjectItems.Add(projectItem);
-        }
-    }
-
-    public void GetDirectory(string path, ProjectItem parent)
-    {
-        parent.Children.Clear();
-        DirectoryInfo root = new DirectoryInfo(path);
-        foreach (DirectoryInfo dir in root.GetDirectories())
-        {
-            ProjectItem projectItem = new ProjectItem(dir.Name, dir.FullName) { IsFolder = true };
-            parent.Children.Add(projectItem);
-            GetDirectory(dir.FullName, projectItem);
-        }
-        foreach (var file in root.GetFiles())
-        {
-            ProjectItem projectItem = new ProjectItem(file.Name, file.FullName);
-            parent.Children.Add(projectItem);
-        }
-    }
-
-    string currentFilePath = string.Empty;
-    /// <summary>
-    /// 双击文件打开
-    /// </summary>
-    /// <param name="e"></param>
-    public void TreeDoubleTapped(TappedEventArgs? e)
-    {
-        if (SelectedProjectItem == null)
-        {
-            return;
-        }
-
-        if (!SelectedProjectItem.IsFolder)
-        {
-            // 读取文件
-            var str = File.ReadAllText(SelectedProjectItem.FullName);
-            currentFilePath = SelectedProjectItem.FullName;
-            PyScript.Text = str;
-        }
-    }
-
-    public void SaveFile()
-    {
-        if (currentFilePath == string.Empty)
-        {
-            return;
-        }
-
-        File.WriteAllText(currentFilePath, PyScript.Text);
-    }
-
-    public async void AddFolder()
-    {
-        (bool, string) result = await InputDialog.ShowWindow();
-        if (result.Item1)
-        {
-            Directory.CreateDirectory($"{SelectedProjectItem?.FullName}\\{result.Item2}");
-            GetDirectory(SelectedProjectItem.FullName, SelectedProjectItem);
-        }
-    }
-
-    public async void AddFile()
-    {
-        (bool, string) result = await InputDialog.ShowWindow();
-        if (result.Item1)
-        {
-            var stream = File.Create($"{SelectedProjectItem?.FullName}\\{result.Item2}.py");
-            stream.Close();
-            GetDirectory(SelectedProjectItem.FullName, SelectedProjectItem);
         }
     }
 }

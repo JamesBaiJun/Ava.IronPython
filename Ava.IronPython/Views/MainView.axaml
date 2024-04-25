@@ -34,7 +34,7 @@
             </Menu>
 
             <Menu Margin="8,0,0,0">
-                <MenuItem Command="{Binding DebugPy}" ToolTip.Tip="调试代码(Ctrl+F5)">
+                <MenuItem Command="{Binding DebugPy}" IsEnabled="{Binding !IsDebuging}" ToolTip.Tip="调试代码(Ctrl+F5)">
                     <MenuItem.Header>
                         <materialIcons:MaterialIcon Foreground="{DynamicResource SemiColorDanger}" Kind="Bug" />
                     </MenuItem.Header>
@@ -112,6 +112,12 @@
                                                      Stroke="#FF7272"
                                                      StrokeThickness="1" />
                                         </Button>
+                                        <materialIcons:MaterialIcon Margin="2,0,0,0"
+                                                                    HorizontalAlignment="Center"
+                                                                    VerticalAlignment="Center"
+                                                                    Foreground="#05E1D3"
+                                                                    IsVisible="{Binding IsRun}"
+                                                                    Kind="Run" />
                                         <materialIcons:MaterialIcon Margin="2,0,0,0"
                                                                     HorizontalAlignment="Center"
                                                                     VerticalAlignment="Center"

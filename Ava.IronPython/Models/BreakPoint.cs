@@ -17,6 +17,9 @@ namespace Ava.IronPython.Models
         [ObservableProperty]
         bool isHit;
 
+        [ObservableProperty]
+        bool isRun;
+
         public void SwitchPoint()
         {
             Enable = !Enable;

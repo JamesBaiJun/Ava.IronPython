@@ -45,12 +45,12 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     bool isDebuging;
-    public void PlayPy()
+    public async void PlayPy()
     {
         try
         {
             ScriptScope? scope = null;
-            List<PyVariable> variables = ScriptExecute.Execute(PyScript.Text, ref scope, string.IsNullOrEmpty(currentFilePath) ? string.Empty : currentFilePath);
+            (List<PyVariable> variables, _) = await ScriptExecute.Execute(PyScript.Text, scope, string.IsNullOrEmpty(currentFilePath) ? string.Empty : currentFilePath);
             UpdateVariables(variables);
         }
         catch (Exception e)
@@ -77,7 +77,7 @@ public partial class MainViewModel : ViewModelBase
     int currentSegment = 0;
     List<string> segments;
     ScriptScope? currentScope;
-    public void DebugPy()
+    public async void DebugPy()
     {
         scriptArray = PyScript.Text.Split('\n');
         segments = ExtractExecutableCodeSegments(PyScript.Text);
@@ -102,7 +102,10 @@ public partial class MainViewModel : ViewModelBase
             {
                 try
                 {
-                    List<PyVariable> variables = ScriptExecute.Execute(line, ref currentScope, string.IsNullOrEmpty(currentFilePath) ? string.Empty : currentFilePath);
+                    BreakPoints[currentRow].IsRun = true;
+                    (List<PyVariable> variables, currentScope) = await ScriptExecute.Execute(line, currentScope, string.IsNullOrEmpty(currentFilePath) ? string.Empty : currentFilePath);
+                    BreakPoints[currentRow].IsRun = false;
+
                     UpdateVariables(variables);
                     if (currentRow >= scriptArray.Length - 1)
                     {
@@ -174,7 +177,7 @@ public partial class MainViewModel : ViewModelBase
     /// <summary>
     /// 继续运行到下一个断点
     /// </summary>
-    public void ContinueDebug()
+    public async void ContinueDebug()
     {
         if (scriptArray == null)
         {
@@ -199,7 +202,9 @@ public partial class MainViewModel : ViewModelBase
             {
                 try
                 {
-                    List<PyVariable> variables = ScriptExecute.Execute(line, ref currentScope);
+                    BreakPoints[currentRow].IsRun = true;
+                    (List<PyVariable> variables, _) = await ScriptExecute.Execute(line, currentScope);
+                    BreakPoints[currentRow].IsRun = false;
                     UpdateVariables(variables);
                     if (currentRow >= scriptArray.Length - 1)
                     {
@@ -225,7 +230,7 @@ public partial class MainViewModel : ViewModelBase
     /// <summary>
     /// 单行继续运行
     /// </summary>
-    public void StepOver()
+    public async void StepOver()
     {
         foreach (var item in BreakPoints)
         {
@@ -239,8 +244,15 @@ public partial class MainViewModel : ViewModelBase
                 return;
             }
 
+            if (currentSegment > segments.Count - 1)
+            {
+                IsDebuging = false;
+                return;
+            }
             string line = segments[currentSegment];
-            List<PyVariable> variables = ScriptExecute.Execute(line, ref currentScope);
+            BreakPoints[currentRow].IsRun = true;
+            (List<PyVariable> variables, _) = await ScriptExecute.Execute(line, currentScope);
+            BreakPoints[currentRow].IsRun = false;
             UpdateVariables(variables);
             currentSegment++;
             currentRow = CountRow(currentSegment, segments);

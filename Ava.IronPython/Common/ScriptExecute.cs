@@ -16,7 +16,7 @@ namespace Ava.IronPython.Common
     {
         private static ScriptEngine? eng;
         private static ScriptScope? scope;
-        public static List<PyVariable> Execute(string script, ref ScriptScope? scp, string filePath = "")
+        public static async Task<(List<PyVariable>, ScriptScope)> Execute(string script, ScriptScope? scp, string filePath = "")
         {
             eng ??= Python.CreateEngine();
             if (scp == null)
@@ -52,10 +52,13 @@ namespace Ava.IronPython.Common
 
             eng.SetSearchPaths(paths);
 
-            eng.Execute(script, scope);
+            await Task.Run(() =>
+            {
+                eng.Execute(script, scope);
+            });
             if (scope == null)
             {
-                return [];
+                return ([], scope);
             }
 
             List<string> variables = scope.GetVariableNames().Where(x => !x.Contains("__")).ToList();
@@ -92,7 +95,7 @@ namespace Ava.IronPython.Common
                 }
             }
 
-            return result;
+            return (result, scope);
         }
     }
 }

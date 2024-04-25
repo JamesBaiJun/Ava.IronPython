@@ -1,18 +1,18 @@
-<UserControl
-    x:Class="Ava.IronPython.Views.MainView"
-    xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:AvaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
-    xmlns:ic="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
-    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="clr-namespace:Ava.IronPython.ViewModels"
-    d:DesignHeight="450"
-    d:DesignWidth="800"
-    x:DataType="vm:MainViewModel"
-    mc:Ignorable="d">
+<UserControl x:Class="Ava.IronPython.Views.MainView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:AvaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
+             xmlns:ic="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:views="using:Ava.IronPython.Views"
+             xmlns:vm="clr-namespace:Ava.IronPython.ViewModels"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             x:DataType="vm:MainViewModel"
+             mc:Ignorable="d">
     <ic:Interaction.Behaviors>
         <ia:EventTriggerBehavior EventName="KeyDown">
             <ia:InvokeCommandAction Command="{Binding ViewKeyDown}" PassEventArgsToCommand="True" />
@@ -69,10 +69,13 @@
                     </MenuItem.Header>
                 </MenuItem>
             </Menu>
-            <materialIcons:MaterialIcon DockPanel.Dock="Right" Foreground="{DynamicResource SemiColorWarning}" IsVisible="{Binding IsDebuging}" Kind="Bug" />
+            <materialIcons:MaterialIcon DockPanel.Dock="Right"
+                                        Foreground="{DynamicResource SemiColorWarning}"
+                                        IsVisible="{Binding IsDebuging}"
+                                        Kind="Bug" />
         </DockPanel>
 
-        <Grid Grid.Row="1" ColumnDefinitions="*,280">
+        <Grid Grid.Row="1" ColumnDefinitions="*,280" RowDefinitions="*,260">
             <Border Padding="0" Theme="{DynamicResource CardBorder}">
                 <Grid ColumnDefinitions="20,*">
                     <ScrollViewer x:Name="BreakScrollViewer" HorizontalAlignment="Left" VerticalScrollBarVisibility="Hidden">
@@ -96,48 +99,59 @@
                                                 </Style>
                                             </ControlTheme>
                                         </Grid.Resources>
-                                        <Button
-                                            Width="16"
-                                            Height="16"
-                                            Margin="2,0,0,0"
-                                            Padding="0"
-                                            VerticalAlignment="Center"
-                                            Command="{Binding SwitchPoint}">
-                                            <Ellipse
-                                                Width="16"
+                                        <Button Width="16"
                                                 Height="16"
-                                                Fill="#D61717"
-                                                IsVisible="{Binding Enable}"
-                                                Stroke="#FF7272"
-                                                StrokeThickness="1" />
+                                                Margin="2,0,0,0"
+                                                Padding="0"
+                                                VerticalAlignment="Center"
+                                                Command="{Binding SwitchPoint}">
+                                            <Ellipse Width="16"
+                                                     Height="16"
+                                                     Fill="#D61717"
+                                                     IsVisible="{Binding Enable}"
+                                                     Stroke="#FF7272"
+                                                     StrokeThickness="1" />
                                         </Button>
-                                        <materialIcons:MaterialIcon
-                                            Margin="2,0,0,0"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            Foreground="#E1E105"
-                                            IsVisible="{Binding IsHit}"
-                                            Kind="ArrowRightBold" />
+                                        <materialIcons:MaterialIcon Margin="2,0,0,0"
+                                                                    HorizontalAlignment="Center"
+                                                                    VerticalAlignment="Center"
+                                                                    Foreground="#E1E105"
+                                                                    IsVisible="{Binding IsHit}"
+                                                                    Kind="ArrowRightBold" />
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
 
-                    <AvaloniaEdit:TextEditor
-                        x:Name="Editor"
-                        Grid.Column="1"
-                        Document="{Binding PyScript}"
-                        FontFamily="Cascadia Code,Consolas,Menlo,Monospace,Microsoft YaHei"
-                        FontSize="15.6"
-                        IsReadOnly="{Binding IsDebuging}"
-                        KeyDown="TextEditor_KeyDown"
-                        ShowLineNumbers="True" />
+                    <AvaloniaEdit:TextEditor x:Name="Editor"
+                                             Grid.Column="1"
+                                             Document="{Binding PyScript}"
+                                             FontFamily="Cascadia Code,Consolas,Menlo,Monospace,Microsoft YaHei"
+                                             FontSize="15.6"
+                                             IsReadOnly="{Binding IsDebuging}"
+                                             KeyDown="TextEditor_KeyDown"
+                                             ShowLineNumbers="True" />
                 </Grid>
             </Border>
 
-            <GridSplitter Width="4" HorizontalAlignment="Right" VerticalAlignment="Stretch" Background="Transparent" />
-            <Grid Grid.Column="1" RowDefinitions="*,*">
+            <GridSplitter Height="5"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Bottom"
+                          Background="Transparent" />
+
+            <Border Grid.Row="1"
+                    Margin="4"
+                    Padding="0"
+                    Theme="{DynamicResource CardBorder}">
+                <views:OutputView />
+            </Border>
+
+            <GridSplitter Width="5"
+                          HorizontalAlignment="Right"
+                          VerticalAlignment="Stretch"
+                          Background="Transparent" />
+            <Grid Grid.RowSpan="2" Grid.Column="1" RowDefinitions="*,*">
                 <Border Padding="-4,4" Theme="{DynamicResource CardBorder}">
                     <TreeView ItemsSource="{Binding ProjectItems}" SelectedItem="{Binding SelectedProjectItem}">
                         <ic:Interaction.Behaviors>
@@ -156,20 +170,18 @@
                                         </ContextMenu>
                                     </StackPanel.ContextMenu>
 
-                                    <materialIcons:MaterialIcon
-                                        Width="18"
-                                        Height="18"
-                                        Margin="4,0"
-                                        Foreground="{DynamicResource SemiColorInformation}"
-                                        IsVisible="{Binding IsFolder}"
-                                        Kind="Folder" />
-                                    <materialIcons:MaterialIcon
-                                        Width="18"
-                                        Height="18"
-                                        Margin="4,0"
-                                        Foreground="{DynamicResource SemiColorWarning}"
-                                        IsVisible="{Binding !IsFolder}"
-                                        Kind="Code" />
+                                    <materialIcons:MaterialIcon Width="18"
+                                                                Height="18"
+                                                                Margin="4,0"
+                                                                Foreground="{DynamicResource SemiColorInformation}"
+                                                                IsVisible="{Binding IsFolder}"
+                                                                Kind="Folder" />
+                                    <materialIcons:MaterialIcon Width="18"
+                                                                Height="18"
+                                                                Margin="4,0"
+                                                                Foreground="{DynamicResource SemiColorWarning}"
+                                                                IsVisible="{Binding !IsFolder}"
+                                                                Kind="Code" />
                                     <TextBlock Text="{Binding Name}" />
                                 </StackPanel>
                             </TreeDataTemplate>

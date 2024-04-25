@@ -75,25 +75,28 @@ public partial class MainViewModel : ViewModelBase
 
     string[]? scriptArray;
     int currentRow = 0;
+    int currentSegment = 0;
+    List<string> segments;
     ScriptScope? currentScope;
     public void DebugPy()
     {
         scriptArray = PyScript.Text.Split('\n');
-        var segments = ExtractExecutableCodeSegments(PyScript.Text);
+        segments = ExtractExecutableCodeSegments(PyScript.Text);
         currentScope = null;
         IsDebuging = true;
-        for (int i = 0; i < scriptArray.Length; i++)
+        for (int i = 0; i < segments.Count;)
         {
             foreach (var item in BreakPoints)
             {
                 item.IsHit = false;
             }
 
-            currentRow = i;
-            string line = scriptArray[i];
-            if (BreakPoints[i].Enable)// 当前断点启用，将停止并标记
+            currentRow = CountRow(i, segments);
+            currentSegment = i;
+            string line = segments[i];
+            if (BreakPoints[currentRow].Enable)// 当前断点启用，将停止并标记
             {
-                BreakPoints[i].IsHit = true;
+                BreakPoints[currentRow].IsHit = true;
                 break;
             }
             else// 当前断点未启用，执行本句
@@ -114,7 +117,25 @@ public partial class MainViewModel : ViewModelBase
                     return;
                 }
             }
+
+            if (i == segments.Count - 1)
+            {
+                IsDebuging = false;
+            }
+            i++;
         }
+    }
+
+    private int CountRow(int r, List<string> segments)
+    {
+        int rowCount = 0;
+        for (int i = 0; i < r; i++)
+        {
+            var le = segments[i].Split('\n').Length;
+            rowCount += le;
+        }
+
+        return rowCount;
     }
 
     /// <summary>
@@ -149,17 +170,18 @@ public partial class MainViewModel : ViewModelBase
         {
             return;
         }
-        for (int i = currentRow; i < scriptArray.Length; i++)
+        for (int i = currentSegment; i < segments.Count; i++)
         {
             foreach (var item in BreakPoints)
             {
                 item.IsHit = false;
             }
 
-            string line = scriptArray[i];
-            if (BreakPoints[i].Enable && currentRow != i)// 当前断点启用，将停止并标记
+            currentRow = CountRow(i, segments);
+            string line = segments[i];
+            if (BreakPoints[currentRow].Enable && currentSegment != i)// 当前断点启用，将停止并标记
             {
-                BreakPoints[i].IsHit = true;
+                BreakPoints[currentRow].IsHit = true;
                 currentRow = i;
                 break;
             }
@@ -169,7 +191,6 @@ public partial class MainViewModel : ViewModelBase
                 {
                     List<PyVariable> variables = ScriptExecute.Execute(line, ref currentScope);
                     UpdateVariables(variables);
-                    currentRow = i;
                     if (currentRow >= scriptArray.Length - 1)
                     {
                         IsDebuging = false;
@@ -182,8 +203,13 @@ public partial class MainViewModel : ViewModelBase
                     return;
                 }
             }
-            currentRow = i;
+            currentSegment = i;
+            if (i == segments.Count - 1)
+            {
+                IsDebuging = false;
+            }
         }
+        currentSegment++;
     }
 
     /// <summary>
@@ -202,10 +228,12 @@ public partial class MainViewModel : ViewModelBase
             {
                 return;
             }
-            string line = scriptArray[currentRow];
+
+            string line = segments[currentSegment];
             List<PyVariable> variables = ScriptExecute.Execute(line, ref currentScope);
             UpdateVariables(variables);
-            currentRow++;
+            currentSegment++;
+            currentRow = CountRow(currentSegment, segments);
             if (currentRow < scriptArray.Length)
             {
                 BreakPoints[currentRow].IsHit = true;

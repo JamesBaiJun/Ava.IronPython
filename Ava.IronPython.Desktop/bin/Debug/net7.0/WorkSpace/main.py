@@ -1,5 +1,10 @@
-import clr
-clr.AddReference("CommonLib")
-from CommonLib import Cal as ca
-
-t = ca.Add(1,2)
+t = 1
+a = 2
+#测试ab
+while (t<5):
+    t += 1 
+    a = a + 1
+while (t<5):
+    t += 1 
+    a = a + 1
+a = 5

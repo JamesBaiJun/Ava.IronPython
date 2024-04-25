@@ -8,6 +8,7 @@
         Height="240"
         d:DesignHeight="240"
         d:DesignWidth="320"
+        Icon="/Assets/avalonia-logo.ico"
         mc:Ignorable="d">
     <Grid>
         <StackPanel Margin="20" VerticalAlignment="Center" Spacing="4">

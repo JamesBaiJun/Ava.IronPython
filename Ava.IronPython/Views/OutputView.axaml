@@ -1,0 +1,40 @@
+<UserControl x:Class="Ava.IronPython.Views.OutputView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             mc:Ignorable="d">
+    <UserControl.Styles>
+        <Style Selector="TextBox">
+            <Style Selector="^:pointerover /template/ Border#PART_ContentPresenterBorder">
+                <Setter Property="Background" Value="Transparent" />
+            </Style>
+            <Style Selector="^:pressed /template/ Border#PART_ContentPresenterBorder">
+                <Setter Property="Background" Value="Transparent" />
+            </Style>
+            <Style Selector="^:focus /template/ Border#PART_ContentPresenterBorder">
+                <Setter Property="BorderBrush" Value="Transparent" />
+            </Style>
+            <Style Selector="^:disabled /template/ Border#PART_ContentPresenterBorder">
+                <Setter Property="BorderBrush" Value="{DynamicResource TextBoxDisabledBorderBrush}" />
+                <Setter Property="Background" Value="Transparent" />
+            </Style>
+            <Style Selector="^:disabled">
+                <Setter Property="Foreground" Value="Transparent" />
+            </Style>
+        </Style>
+    </UserControl.Styles>
+    <Grid>
+        <TextBox x:Name="LogBox"
+                 Padding="8"
+                 VerticalAlignment="Stretch"
+                 VerticalContentAlignment="Top"
+                 Background="Transparent"
+                 IsReadOnly="True"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 TextWrapping="Wrap"
+                 Theme="{x:Null}" />
+    </Grid>
+</UserControl>

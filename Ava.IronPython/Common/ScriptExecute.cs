@@ -9,6 +9,7 @@ using IronPython.Runtime;
 using Ava.IronPython.Models;
 using Avalonia;
 using Microsoft.Scripting.Runtime;
+using System.IO;
 namespace Ava.IronPython.Common
 {
     internal class ScriptExecute
@@ -40,9 +41,13 @@ namespace Ava.IronPython.Common
             {
                 paths.Add(Environment.CurrentDirectory);
             }
-            if (!string.IsNullOrEmpty(filePath) && !paths.Contains(filePath))
+            if (!string.IsNullOrEmpty(filePath))
             {
-                paths.Add(filePath);
+                var dir = Path.GetDirectoryName(filePath);
+                if (!paths.Contains(dir))
+                {
+                    paths.Add(dir);
+                }
             }
 
             eng.SetSearchPaths(paths);

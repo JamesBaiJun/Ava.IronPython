@@ -194,8 +194,11 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Spacing="2">
-                                    <TextBlock Width="80" FontWeight="Bold" Text="{Binding Name}" />
-                                    <TextBlock Text="{Binding Value}" />
+                                    <TextBlock Width="80"
+                                               FontWeight="Bold"
+                                               Text="{Binding Name}"
+                                               TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding Value}" TextWrapping="Wrap" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>

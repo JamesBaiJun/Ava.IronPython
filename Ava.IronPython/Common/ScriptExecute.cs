@@ -15,7 +15,7 @@ namespace Ava.IronPython.Common
     {
         private static ScriptEngine? eng;
         private static ScriptScope? scope;
-        public static List<PyVariable> Execute(string script, ref ScriptScope? scp)
+        public static List<PyVariable> Execute(string script, ref ScriptScope? scp, string filePath = "")
         {
             eng ??= Python.CreateEngine();
             if (scp == null)
@@ -30,6 +30,7 @@ namespace Ava.IronPython.Common
 
             // 设置引用库
             var paths = eng.GetSearchPaths();
+
             if (!paths.Contains(@"C:\Program Files\IronPython 3.4\Lib"))
             {
                 paths.Add(@"C:\Program Files\IronPython 3.4\Lib");
@@ -38,6 +39,10 @@ namespace Ava.IronPython.Common
             if (!paths.Contains(Environment.CurrentDirectory))
             {
                 paths.Add(Environment.CurrentDirectory);
+            }
+            if (!string.IsNullOrEmpty(filePath) && !paths.Contains(filePath))
+            {
+                paths.Add(filePath);
             }
 
             eng.SetSearchPaths(paths);

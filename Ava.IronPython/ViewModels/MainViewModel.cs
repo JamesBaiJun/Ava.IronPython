@@ -50,9 +50,8 @@ public partial class MainViewModel : ViewModelBase
         try
         {
             ScriptScope? scope = null;
-            List<PyVariable> variables = ScriptExecute.Execute(PyScript.Text, ref scope);
+            List<PyVariable> variables = ScriptExecute.Execute(PyScript.Text, ref scope, string.IsNullOrEmpty(currentFilePath) ? string.Empty : currentFilePath);
             UpdateVariables(variables);
-            WeakReferenceMessenger.Default.Send(new Tuple<int, string>(1, "执行完成！"));
         }
         catch (Exception e)
         {
@@ -103,7 +102,7 @@ public partial class MainViewModel : ViewModelBase
             {
                 try
                 {
-                    List<PyVariable> variables = ScriptExecute.Execute(line, ref currentScope);
+                    List<PyVariable> variables = ScriptExecute.Execute(line, ref currentScope, string.IsNullOrEmpty(currentFilePath) ? string.Empty : currentFilePath);
                     UpdateVariables(variables);
                     if (currentRow >= scriptArray.Length - 1)
                     {
@@ -148,13 +147,24 @@ public partial class MainViewModel : ViewModelBase
         // 使用正则表达式分割脚本为代码段
         string pattern = @"(?<=\n\n|\n)(?=\S)";
         string[] segments = Regex.Split(script, pattern, RegexOptions.Multiline);
-
         foreach (string segment in segments)
         {
             string trimmedSegment = segment.Trim();
             if (!string.IsNullOrEmpty(trimmedSegment))
             {
                 executableCodeSegments.Add(trimmedSegment);
+            }
+
+            var ty = Regex.Matches(segment, @"\r\n\s*\r\n+$");
+            if (ty.Count == 0)
+            {
+                continue;
+            }
+            var c = ty[0].Value.Count(x => x == '\n');
+            for (int i = 0; i < c - 1; i++)
+            {
+                executableCodeSegments.Add(" ");
+
             }
         }
 

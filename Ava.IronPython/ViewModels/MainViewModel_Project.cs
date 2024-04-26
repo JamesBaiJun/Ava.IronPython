@@ -23,7 +23,7 @@ namespace Ava.IronPython.ViewModels
         [ObservableProperty]
         string searchText = string.Empty;
 
-        string workSpace = ".\\WorkSpace";
+        string workSpace = $"{Environment.CurrentDirectory}{Path.DirectorySeparatorChar}WorkSpace";
         private void InitProjectFile()
         {
             DirectoryInfo root = new DirectoryInfo(workSpace);
@@ -95,7 +95,7 @@ namespace Ava.IronPython.ViewModels
             {
                 try
                 {
-                    Directory.CreateDirectory($"{SelectedProjectItem?.FullName}\\{result.Item2}");
+                    Directory.CreateDirectory($"{SelectedProjectItem?.FullName}{Path.DirectorySeparatorChar}{result.Item2}");
                     GetDirectory(SelectedProjectItem.FullName, SelectedProjectItem);
                 }
                 catch (Exception e)
@@ -112,7 +112,7 @@ namespace Ava.IronPython.ViewModels
             {
                 try
                 {
-                    var stream = File.Create($"{SelectedProjectItem?.FullName}\\{result.Item2}.py");
+                    var stream = File.Create($"{SelectedProjectItem?.FullName}{Path.DirectorySeparatorChar}{result.Item2}.py");
                     stream.Close();
                     GetDirectory(SelectedProjectItem.FullName, SelectedProjectItem);
                 }

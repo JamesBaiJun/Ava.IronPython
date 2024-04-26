@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ava.IronPython", "Ava.IronP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ava.IronPython.Desktop", "Ava.IronPython.Desktop\Ava.IronPython.Desktop.csproj", "{FA16023F-293D-4144-93F4-0134465BD46F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLib", "CommonLib\CommonLib.csproj", "{927B4B25-3552-4AEF-95E2-449D9FE24709}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommonLib", "CommonLib\CommonLib.csproj", "{927B4B25-3552-4AEF-95E2-449D9FE24709}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

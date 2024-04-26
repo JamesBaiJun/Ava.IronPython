@@ -20,6 +20,14 @@ namespace Ava.IronPython.Models
         bool isFolder;
 
         [ObservableProperty]
+        bool isVisible = true;
+
+        [ObservableProperty]
+        bool isExpanded = false;
+
+        public ProjectItem? Parent { get; set; }
+
+        [ObservableProperty]
         ObservableCollection<ProjectItem> children = [];
 
         public ProjectItem(string name, string fullName)

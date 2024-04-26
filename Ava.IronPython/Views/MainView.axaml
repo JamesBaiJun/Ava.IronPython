@@ -7,6 +7,7 @@
              xmlns:ic="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
              xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:model="using:Ava.IronPython.Models"
              xmlns:views="using:Ava.IronPython.Views"
              xmlns:vm="clr-namespace:Ava.IronPython.ViewModels"
              d:DesignHeight="450"
@@ -159,40 +160,49 @@
                           Background="Transparent" />
             <Grid Grid.RowSpan="2" Grid.Column="1" RowDefinitions="*,*">
                 <Border Padding="-4,4" Theme="{DynamicResource CardBorder}">
-                    <TreeView ItemsSource="{Binding ProjectItems}" SelectedItem="{Binding SelectedProjectItem}">
-                        <ic:Interaction.Behaviors>
-                            <ia:EventTriggerBehavior EventName="DoubleTapped">
-                                <ia:InvokeCommandAction Command="{Binding TreeDoubleTapped}" PassEventArgsToCommand="True" />
-                            </ia:EventTriggerBehavior>
-                        </ic:Interaction.Behaviors>
-                        <TreeView.ItemTemplate>
-                            <TreeDataTemplate ItemsSource="{Binding Children}">
-                                <StackPanel Background="Transparent" Orientation="Horizontal">
-                                    <StackPanel.ContextMenu>
-                                        <ContextMenu>
-                                            <MenuItem Command="{Binding $parent[TreeView].((vm:MainViewModel)DataContext).AddFolder}" Header="新建文件夹" IsVisible="{Binding IsFolder}" />
-                                            <MenuItem Command="{Binding $parent[TreeView].((vm:MainViewModel)DataContext).AddFile}" Header="新建文件" IsVisible="{Binding IsFolder}" />
-                                            <MenuItem Header="删除" />
-                                        </ContextMenu>
-                                    </StackPanel.ContextMenu>
+                    <DockPanel>
+                        <TextBox Margin="8,0,8,8" DockPanel.Dock="Top" Text="{Binding SearchText}" />
+                        <TreeView ItemsSource="{Binding ProjectItems}" SelectedItem="{Binding SelectedProjectItem}">
+                            <ic:Interaction.Behaviors>
+                                <ia:EventTriggerBehavior EventName="DoubleTapped">
+                                    <ia:InvokeCommandAction Command="{Binding TreeDoubleTapped}" PassEventArgsToCommand="True" />
+                                </ia:EventTriggerBehavior>
+                            </ic:Interaction.Behaviors>
+                            <TreeView.ItemTemplate>
+                                <TreeDataTemplate x:DataType="{x:Type model:ProjectItem}" ItemsSource="{Binding Children}">
+                                    <StackPanel Background="Transparent" Orientation="Horizontal">
+                                        <StackPanel.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Command="{Binding $parent[TreeView].((vm:MainViewModel)DataContext).AddFolder}" Header="新建文件夹" IsVisible="{Binding IsFolder}" />
+                                                <MenuItem Command="{Binding $parent[TreeView].((vm:MainViewModel)DataContext).AddFile}" Header="新建文件" IsVisible="{Binding IsFolder}" />
+                                                <MenuItem Header="删除" />
+                                            </ContextMenu>
+                                        </StackPanel.ContextMenu>
 
-                                    <materialIcons:MaterialIcon Width="18"
-                                                                Height="18"
-                                                                Margin="4,0"
-                                                                Foreground="{DynamicResource SemiColorInformation}"
-                                                                IsVisible="{Binding IsFolder}"
-                                                                Kind="Folder" />
-                                    <materialIcons:MaterialIcon Width="18"
-                                                                Height="18"
-                                                                Margin="4,0"
-                                                                Foreground="{DynamicResource SemiColorWarning}"
-                                                                IsVisible="{Binding !IsFolder}"
-                                                                Kind="Code" />
-                                    <TextBlock Text="{Binding Name}" />
-                                </StackPanel>
-                            </TreeDataTemplate>
-                        </TreeView.ItemTemplate>
-                    </TreeView>
+                                        <materialIcons:MaterialIcon Width="18"
+                                                                    Height="18"
+                                                                    Margin="4,0"
+                                                                    Foreground="{DynamicResource SemiColorInformation}"
+                                                                    IsVisible="{Binding IsFolder}"
+                                                                    Kind="Folder" />
+                                        <materialIcons:MaterialIcon Width="18"
+                                                                    Height="18"
+                                                                    Margin="4,0"
+                                                                    Foreground="{DynamicResource SemiColorWarning}"
+                                                                    IsVisible="{Binding !IsFolder}"
+                                                                    Kind="Code" />
+                                        <TextBlock Text="{Binding Name}" />
+                                    </StackPanel>
+                                </TreeDataTemplate>
+                            </TreeView.ItemTemplate>
+                            <TreeView.Styles>
+                                <Style Selector="TreeViewItem">
+                                    <Setter Property="IsVisible" Value="{Binding $self.((model:ProjectItem)DataContext).IsVisible}" />
+                                    <Setter Property="IsExpanded" Value="{Binding $self.((model:ProjectItem)DataContext).IsExpanded}" />
+                                </Style>
+                            </TreeView.Styles>
+                        </TreeView>
+                    </DockPanel>
                 </Border>
 
                 <Border Grid.Row="1" Padding="4" Theme="{DynamicResource CardBorder}">
